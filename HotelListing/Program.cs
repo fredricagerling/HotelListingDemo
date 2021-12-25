@@ -1,4 +1,6 @@
+using HotelListing.Config;
 using HotelListing.Data;
+using HotelListing.Repository;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -20,7 +22,13 @@ builder.Services.AddCors(x =>
             .AllowAnyHeader());
 });
 
+builder.Services.AddAutoMapper(typeof(MapperInit));
+
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 builder.Host.UseSerilog((ctx, lc) => lc
 .WriteTo.Console()
