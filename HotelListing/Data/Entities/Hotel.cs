@@ -9,8 +9,8 @@ namespace HotelListing.Data
         public string Address { get; set; }
         public double Rating { get; set; }
 
-        [ForeignKey(nameof(Country))]
+        [ForeignKey("CountryId")]
         public Country Country { get; set; }
-        public int CountryId { get;set }
+        public int CountryId { get; set; }
     }
 }
