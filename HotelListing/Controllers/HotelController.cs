@@ -27,6 +27,7 @@ namespace HotelListing.Controllers
         {
             try
             {
+                
                 var hotels = _mapper.Map<List<HotelDTO>>(await _unitOfWork.Hotels.GetAllAsync());
                 return Ok(hotels);
             }

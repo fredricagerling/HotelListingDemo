@@ -1,6 +1,8 @@
+using HotelListing;
 using HotelListing.Config;
 using HotelListing.Data;
 using HotelListing.Repository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -31,6 +33,8 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddControllers().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore );
 
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
 
 builder.Host.UseSerilog((ctx, lc) => lc
 .WriteTo.Console()
