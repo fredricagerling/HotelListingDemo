@@ -23,11 +23,13 @@ builder.Services.AddCors(x =>
 });
 
 builder.Services.AddAutoMapper(typeof(MapperInit));
+builder.Services.AddRouting(o => o.LowercaseUrls = true);
 
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddControllers().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore );
 
 
 builder.Host.UseSerilog((ctx, lc) => lc
