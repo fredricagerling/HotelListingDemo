@@ -2,12 +2,15 @@ using HotelListing;
 using HotelListing.Config;
 using HotelListing.Data;
 using HotelListing.Repository;
+using HotelListing.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+ConfigurationManager configuration = builder.Configuration;
 
 var connectionString = builder.Configuration.GetConnectionString("sqlConnection");
 
@@ -30,11 +33,14 @@ builder.Services.AddRouting(o => o.LowercaseUrls = true);
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddControllers().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore );
 
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
+builder.Services.ConfigureJWT(configuration);
 
 builder.Host.UseSerilog((ctx, lc) => lc
 .WriteTo.Console()
