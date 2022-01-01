@@ -37,7 +37,7 @@ namespace HotelListing.Services
             var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings.GetSection("lifetime").Value));
 
             var token = new JwtSecurityToken(
-                issuer: jwtSettings.GetSection("validIssuer").Value,
+                issuer: jwtSettings.GetSection("Issuer").Value,
                 claims: claims,
                 expires: expiration,
                 signingCredentials: signinCrecidentials
@@ -64,7 +64,7 @@ namespace HotelListing.Services
 
         private SigningCredentials GetSignInCrecidentials()
         {
-            var key = Environment.GetEnvironmentVariable("KEY");
+            var key = Environment.GetEnvironmentVariable("KEY", EnvironmentVariableTarget.Machine);
             var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
