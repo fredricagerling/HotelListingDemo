@@ -45,6 +45,8 @@ namespace HotelListing.Controllers
                     return BadRequest("Something went wrong.");
                 }
 
+                await _userManager.AddToRolesAsync(user, userDTO.Roles);
+
                 return Accepted();
             }
             catch (Exception ex)
