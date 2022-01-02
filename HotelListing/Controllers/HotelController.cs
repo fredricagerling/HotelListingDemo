@@ -83,5 +83,66 @@ namespace HotelListing.Controllers
                 return Problem($"Something went wrong in the {nameof(CreateHotel)}", statusCode: 500);
             }
         }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = Roles.Administrator)]
+        public async Task<IActionResult> UpdateHotel(int id, [FromBody] HotelUpdateDTO hotelDTO)
+        {
+            if (!ModelState.IsValid || id < 1)
+            {
+                _logger.LogError($"Invalid Update in {nameof(UpdateHotel)}");
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var hotel = await _unitOfWork.Hotels.GetAsync(h => h.Id == id);
+                if(hotel == null)
+                {
+                    _logger.LogError($"Invalid update in {nameof(UpdateHotel)}");
+                    return BadRequest($"Hotel with id of {id} does not exist.");
+                }
+                _mapper.Map(hotelDTO, hotel);
+                _unitOfWork.Hotels.Update(hotel);
+                await _unitOfWork.Save();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something went wrong in the {nameof(UpdateHotel)}");
+                return Problem($"Something went wrong in the {nameof(UpdateHotel)}", statusCode: 500);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = Roles.Administrator)]
+        public async Task<IActionResult> DeleteHotel(int id)
+        {
+            if (id < 1)
+            {
+                _logger.LogError($"Invalid Delete in {nameof(DeleteHotel)}");
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var hotel = await _unitOfWork.Hotels.GetAsync(h => h.Id == id);
+
+                if (hotel == null)
+                {
+                    _logger.LogError($"Invalid delete in {nameof(DeleteHotel)}");
+                    return BadRequest($"Hotel with id of {id} does not exist.");
+                }
+
+                await _unitOfWork.Hotels.DeleteAsync(id);
+                await _unitOfWork.Save();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something went wrong in the {nameof(DeleteHotel)}");
+                return Problem($"Something went wrong in the {nameof(DeleteHotel)}", statusCode: 500);
+            }
+        }
     }
 }
