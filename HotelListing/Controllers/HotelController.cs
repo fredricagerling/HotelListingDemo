@@ -28,36 +28,19 @@ namespace HotelListing.Controllers
         [HttpGet]
         public async Task<IActionResult> GetHotels()
         {
-            try
-            {
-                
-                var hotels = _mapper.Map<List<HotelDTO>>(await _unitOfWork.Hotels.GetAllAsync());
-                return Ok(hotels);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong in the {nameof(GetHotels)}");
-                return StatusCode(500, "Internal server error. Plz try again later.");
-            }
+            var hotels = _mapper.Map<List<HotelDTO>>(await _unitOfWork.Hotels.GetAllAsync());
+            return Ok(hotels);
         }
 
         [HttpGet("{id}", Name = "GetHotel")]
         [Authorize]
         public async Task<IActionResult> GetHotel(int id)
         {
-            try
-            {
-                var hotel = _mapper.Map<HotelDTO>(
-                    await _unitOfWork.Hotels.GetAsync(
-                        x => x.Id == id, new List<string> { "Country" }));
+            var hotel = _mapper.Map<HotelDTO>(
+                await _unitOfWork.Hotels.GetAsync(
+                    x => x.Id == id, new List<string> { "Country" }));
 
-                return Ok(hotel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong in the {nameof(GetHotel)}");
-                return StatusCode(500, "Internal server error. Plz try again later.");
-            }
+            return Ok(hotel);
         }
 
         [HttpPost]
@@ -69,19 +52,13 @@ namespace HotelListing.Controllers
                 _logger.LogError($"Invalid Post in {nameof(CreateHotel)}");
                 return BadRequest(ModelState);
             }
-            try
-            {
-                var hotel = _mapper.Map<Hotel>(hotelDTO);
-                await _unitOfWork.Hotels.AddAsync(hotel);
-                await _unitOfWork.Save();
 
-                return CreatedAtRoute("GetHotel", new { id= hotel.Id }, hotel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong in the {nameof(CreateHotel)}");
-                return Problem($"Something went wrong in the {nameof(CreateHotel)}", statusCode: 500);
-            }
+            var hotel = _mapper.Map<Hotel>(hotelDTO);
+            await _unitOfWork.Hotels.AddAsync(hotel);
+            await _unitOfWork.Save();
+
+            return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
+
         }
 
         [HttpPut("{id}")]
@@ -93,25 +70,19 @@ namespace HotelListing.Controllers
                 _logger.LogError($"Invalid Update in {nameof(UpdateHotel)}");
                 return BadRequest(ModelState);
             }
-            try
-            {
-                var hotel = await _unitOfWork.Hotels.GetAsync(h => h.Id == id);
-                if(hotel == null)
-                {
-                    _logger.LogError($"Invalid update in {nameof(UpdateHotel)}");
-                    return BadRequest($"Hotel with id of {id} does not exist.");
-                }
-                _mapper.Map(hotelDTO, hotel);
-                _unitOfWork.Hotels.Update(hotel);
-                await _unitOfWork.Save();
 
-                return NoContent();
-            }
-            catch (Exception ex)
+            var hotel = await _unitOfWork.Hotels.GetAsync(h => h.Id == id);
+            if (hotel == null)
             {
-                _logger.LogError(ex, $"Something went wrong in the {nameof(UpdateHotel)}");
-                return Problem($"Something went wrong in the {nameof(UpdateHotel)}", statusCode: 500);
+                _logger.LogError($"Invalid update in {nameof(UpdateHotel)}");
+                return BadRequest($"Hotel with id of {id} does not exist.");
             }
+            _mapper.Map(hotelDTO, hotel);
+            _unitOfWork.Hotels.Update(hotel);
+            await _unitOfWork.Save();
+
+            return NoContent();
+
         }
 
         [HttpDelete("{id}")]
@@ -123,26 +94,19 @@ namespace HotelListing.Controllers
                 _logger.LogError($"Invalid Delete in {nameof(DeleteHotel)}");
                 return BadRequest(ModelState);
             }
-            try
+
+            var hotel = await _unitOfWork.Hotels.GetAsync(h => h.Id == id);
+
+            if (hotel == null)
             {
-                var hotel = await _unitOfWork.Hotels.GetAsync(h => h.Id == id);
-
-                if (hotel == null)
-                {
-                    _logger.LogError($"Invalid delete in {nameof(DeleteHotel)}");
-                    return BadRequest($"Hotel with id of {id} does not exist.");
-                }
-
-                await _unitOfWork.Hotels.DeleteAsync(id);
-                await _unitOfWork.Save();
-
-                return NoContent();
+                _logger.LogError($"Invalid delete in {nameof(DeleteHotel)}");
+                return BadRequest($"Hotel with id of {id} does not exist.");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong in the {nameof(DeleteHotel)}");
-                return Problem($"Something went wrong in the {nameof(DeleteHotel)}", statusCode: 500);
-            }
+
+            await _unitOfWork.Hotels.DeleteAsync(id);
+            await _unitOfWork.Save();
+
+            return NoContent();
         }
     }
 }
