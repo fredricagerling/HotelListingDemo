@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using HotelListing.Models;
+using System.Linq.Expressions;
+using X.PagedList;
 
 namespace HotelListing.Repository
 {
@@ -6,6 +8,11 @@ namespace HotelListing.Repository
     {
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            List<string> includes = null
+        );
+
+        Task<IPagedList<T>> GetAllAsync(
+            RequestParams requestParams,
             List<string> includes = null
         );
 

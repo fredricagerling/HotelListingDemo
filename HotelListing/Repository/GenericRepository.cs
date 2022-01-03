@@ -1,6 +1,8 @@
 ﻿using HotelListing.Data;
+using HotelListing.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using X.PagedList;
 
 namespace HotelListing.Repository
 {
@@ -59,6 +61,21 @@ namespace HotelListing.Repository
             }
 
             return await query.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<IPagedList<T>> GetAllAsync(RequestParams requestParams, List<string> includes = null)
+        {
+            IQueryable<T> query = _db;
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return await query.AsNoTracking().ToPagedListAsync(requestParams.Page, requestParams.PageSize);
         }
 
         public async Task<T> GetAsync(Expression<Func<T, bool>> expression, List<string> includes = null)
