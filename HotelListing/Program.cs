@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using HotelListing;
 using HotelListing.Config;
 using HotelListing.Data;
@@ -18,6 +19,10 @@ var connectionString = builder.Configuration.GetConnectionString("sqlConnection"
 builder.Services.AddDbContext<DatabaseContext>(options => 
 options.UseSqlServer(connectionString));
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
+
+builder.Services.ConfigureRateLimiting();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(x =>
@@ -75,6 +80,8 @@ app.UseResponseCaching();
 
 app.UseHttpsRedirection();
 app.UseHttpCacheHeaders();
+
+app.UseIpRateLimiting();
 
 app.UseAuthentication();
 app.UseAuthorization();

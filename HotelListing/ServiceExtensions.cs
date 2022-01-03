@@ -1,4 +1,5 @@
-﻿using HotelListing.Data;
+﻿using AspNetCoreRateLimit;
+using HotelListing.Data;
 using HotelListing.Data.Entities;
 using HotelListing.Models;
 using Marvin.Cache.Headers;
@@ -86,12 +87,35 @@ namespace HotelListing
             services.AddHttpCacheHeaders(expiration =>
             {
                 expiration.MaxAge = 120;
-                expiration.CacheLocation = CacheLocation.Private;
+                expiration.CacheLocation = CacheLocation.Public;
             },
             validation =>
             {
                 validation.MustRevalidate = true;
             });
+        }
+
+        public static void ConfigureRateLimiting(this IServiceCollection services)
+        {
+            var rateLimitRules = new List<RateLimitRule>
+            {
+                new RateLimitRule
+                {
+                    Endpoint = "*",
+                    Limit = 1,
+                    Period = "1s"
+                }
+            };
+
+            services.Configure<IpRateLimitOptions>(options =>
+            {
+                options.GeneralRules = rateLimitRules;
+            });
+
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
         }
     }
 }
