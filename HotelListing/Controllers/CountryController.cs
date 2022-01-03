@@ -6,6 +6,7 @@ using HotelListing.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Controllers
 {
@@ -38,7 +39,7 @@ namespace HotelListing.Controllers
             var country = _mapper.Map<CountryDTO>(
                 await _unitOfWork.Countries.GetAsync(
                     x => x.Id == id,
-                    new List<string> { "Hotels" }));
+                    includes: x => x.Include(x => x.Hotels)));
 
             return Ok(country);
         }
