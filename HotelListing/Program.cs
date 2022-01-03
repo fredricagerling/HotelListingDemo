@@ -41,6 +41,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(o => o.SerializerSettings.Re
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(configuration);
+builder.Services.ConfigureVersioning();
 
 builder.Host.UseSerilog((ctx, lc) => lc
 .WriteTo.Console()
