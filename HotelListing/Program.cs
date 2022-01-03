@@ -4,6 +4,7 @@ using HotelListing.Data;
 using HotelListing.Repository;
 using HotelListing.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -36,8 +37,17 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddControllers().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore );
+builder.Services.AddControllers(config =>
+{
+    config.CacheProfiles.Add("120SecondsDuration", new CacheProfile
+    {
+        Duration = 120
+    });
+}).AddNewtonsoftJson(
+    o => o.SerializerSettings.ReferenceLoopHandling = 
+    Newtonsoft.Json.ReferenceLoopHandling.Ignore );
 
+builder.Services.ConfigureHttpCacheHeaders();
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(configuration);
@@ -61,8 +71,10 @@ app.UseSwaggerUI();
 app.ConfigureExceptionHandler();
 
 app.UseCors("CorsPolicy");
+app.UseResponseCaching();
 
 app.UseHttpsRedirection();
+app.UseHttpCacheHeaders();
 
 app.UseAuthentication();
 app.UseAuthorization();
